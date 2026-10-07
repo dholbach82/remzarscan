@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta
+    name="description"
+    content="Explore the Remzar blockchain: recent blocks, transactions, rewards, and block hashes."
+  >
+  <meta name="color-scheme" content="light">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+
+  <title>RemzarScan — Remzar Block Explorer</title>
+
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./app.js" defer></script>
+</head>
+
+<body>
+  <a class="skip-link" href="#main-content">Skip to explorer</a>
+
+  <header class="site-header">
+    <div class="container header-content">
+      <a class="brand" href="./" aria-label="RemzarScan home">
+        <span class="brand-name">RemzarScan</span>
+        <span class="brand-description">Remzar Block Explorer</span>
+      </a>
+
+      <a class="website-link" href="https://www.remzar.com/">
+        Remzar website
+      </a>
+    </div>
+  </header>
+
+  <main id="main-content" class="container">
+    <section class="overview" aria-labelledby="overview-heading">
+      <div class="section-heading">
+        <div>
+          <h1 id="overview-heading">Explore the Remzar blockchain</h1>
+          <p class="muted">
+            Recent blocks and recorded transactions from a Remzar node.
+          </p>
+        </div>
+
+        <div class="connection-status">
+          <span
+            id="connection-status"
+            class="status-badge"
+            data-state="disconnected"
+            role="status"
+          >
+            <span class="status-dot" aria-hidden="true"></span>
+            <span id="connection-label">Not connected</span>
+          </span>
+
+          <p id="last-updated" class="muted">
+            No successful update yet
+          </p>
+        </div>
+      </div>
+
+      <noscript>
+        <p class="notice notice-warning">
+          JavaScript is required to fetch and display live blockchain data.
+          Enable JavaScript, then reload this page.
+        </p>
+      </noscript>
+
+      <div
+        id="api-notice"
+        class="notice"
+        role="status"
+        hidden
+      ></div>
+
+      <dl class="summary-grid" aria-label="Chain summary">
+        <div class="summary-card">
+          <dt>Latest block</dt>
+          <dd id="latest-height">—</dd>
+        </div>
+
+        <div class="summary-card">
+          <dt>Time since latest block</dt>
+          <dd id="latest-block-age">—</dd>
+        </div>
+
+        <div class="summary-card">
+          <dt>Latest block time</dt>
+          <dd>
+            <time id="latest-block-time">—</time>
+          </dd>
+        </div>
+      </dl>
+
+      <p class="summary-note muted">
+        Data reflects the connected node’s canonical chain.
+        Recent blocks may change during a reorganization.
+      </p>
+    </section>
+
+    <section class="search-section" aria-labelledby="search-heading">
+      <h2 id="search-heading">Find a block</h2>
+
+      <form id="search-form" class="search-form" role="search">
+        <label for="block-search">Block height or full block hash</label>
+
+        <div class="search-controls">
+          <input
+            id="block-search"
+            name="block"
+            type="search"
+            placeholder="Enter a block height or full hash"
+            autocomplete="off"
+            autocapitalize="none"
+            spellcheck="false"
+            maxlength="130"
+            aria-describedby="search-help search-message"
+            required
+          >
+
+          <button id="search-button" type="submit" disabled>
+            Search
+          </button>
+
+          <button
+            id="clear-search"
+            class="button-secondary"
+            type="button"
+            hidden
+          >
+            Clear search
+          </button>
+        </div>
+
+        <p id="search-help" class="muted">
+          Search by height, including 0, or by the complete block hash.
+        </p>
+
+        <p id="search-message" role="status"></p>
+      </form>
+
+      <section
+        id="search-result"
+        class="search-result"
+        aria-labelledby="search-result-heading"
+        hidden
+      >
+        <h3 id="search-result-heading">Search result</h3>
+        <div id="search-result-content"></div>
+      </section>
+    </section>
+
+    <section class="blocks-section" aria-labelledby="blocks-heading">
+      <div class="section-heading">
+        <div>
+          <h2 id="blocks-heading">Latest blocks</h2>
+          <p id="blocks-description" class="muted">
+            Newest first. All timestamps are shown in UTC.
+          </p>
+        </div>
+
+        <div class="refresh-controls">
+          <label for="refresh-interval">Auto-refresh</label>
+
+          <select id="refresh-interval" disabled>
+            <option value="30000" selected>Every 30 seconds</option>
+            <option value="60000">Every minute</option>
+            <option value="600000">Every 10 minutes</option>
+            <option value="0">Paused</option>
+          </select>
+
+          <button
+            id="refresh-button"
+            class="button-secondary"
+            type="button"
+            disabled
+          >
+            Refresh now
+          </button>
+        </div>
+      </div>
+
+      <div
+        id="blocks-table-region"
+        class="table-container"
+        role="region"
+        aria-labelledby="blocks-heading"
+        aria-describedby="blocks-description"
+        aria-busy="false"
+        tabindex="0"
+      >
+        <table class="blocks-table">
+          <caption class="visually-hidden">
+            Canonical Remzar blocks, newest first. Open Details to inspect
+            full hashes and included transactions.
+          </caption>
+
+          <thead>
+            <tr>
+              <th scope="col">Height</th>
+              <th scope="col">Timestamp (UTC)</th>
+              <th scope="col" class="numeric">Transactions</th>
+              <th scope="col" class="numeric">Reward (REMZAR)</th>
+              <th scope="col">Block hash</th>
+              <th scope="col">Details</th>
+            </tr>
+          </thead>
+
+          <tbody id="blocks-body">
+            <tr id="blocks-empty-row">
+              <td colspan="6" class="empty-state">
+                No block data loaded.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-footer">
+        <p id="blocks-summary" class="muted" role="status">
+          No blocks loaded
+        </p>
+
+        <button
+          id="load-older-button"
+          class="button-secondary"
+          type="button"
+          disabled
+        >
+          Load older blocks
+        </button>
+      </div>
+    </section>
+
+    <!--
+      app.js clones this template for expanded block details and search.
+      Insert API values with textContent, never unsanitized innerHTML.
+    -->
+    <template id="block-details-template">
+      <article class="block-details">
+        <h3 data-field="heading">Block details</h3>
+
+        <dl class="details-grid">
+          <div>
+            <dt>Height</dt>
+            <dd data-field="height">—</dd>
+          </div>
+
+          <div>
+            <dt>Timestamp (UTC)</dt>
+            <dd><time data-field="timestamp">—</time></dd>
+          </div>
+
+          <div class="detail-wide">
+            <dt>Block hash</dt>
+            <dd class="copy-value">
+              <code data-field="hash">—</code>
+              <button
+                type="button"
+                class="copy-button"
+                data-copy-field="hash"
+                aria-label="Copy full block hash"
+                disabled
+              >
+                Copy
+              </button>
+            </dd>
+          </div>
+
+          <div class="detail-wide">
+            <dt>Parent hash</dt>
+            <dd class="copy-value">
+              <code data-field="parent-hash">—</code>
+              <button
+                type="button"
+                class="copy-button"
+                data-copy-field="parent-hash"
+                aria-label="Copy full parent hash"
+                disabled
+              >
+                Copy
+              </button>
+            </dd>
+          </div>
+
+          <div class="detail-wide">
+            <dt>Merkle root</dt>
+            <dd class="copy-value">
+              <code data-field="merkle-root">—</code>
+              <button
+                type="button"
+                class="copy-button"
+                data-copy-field="merkle-root"
+                aria-label="Copy full Merkle root"
+                disabled
+              >
+                Copy
+              </button>
+            </dd>
+          </div>
+
+          <div class="detail-wide">
+            <dt>Miner</dt>
+            <dd><code data-field="miner">—</code></dd>
+          </div>
+
+          <div>
+            <dt>Reward (REMZAR)</dt>
+            <dd data-field="reward">—</dd>
+          </div>
+
+          <div>
+            <dt>Included transactions</dt>
+            <dd data-field="transaction-count">—</dd>
+          </div>
+        </dl>
+
+        <section class="transactions-section">
+          <h4>Included transactions</h4>
+
+          <p data-field="transactions-status" class="muted">
+            Transaction details have not been loaded.
+          </p>
+
+          <ol
+            class="transaction-list"
+            data-field="transactions"
+          ></ol>
+        </section>
+      </article>
+    </template>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-content">
+      <p>
+        <strong>RemzarScan</strong>
+        <span class="muted">Read-only blockchain explorer</span>
+      </p>
+
+      <p class="muted">
+        Connection status reports API availability.
+        Latest block age shows how recent the recorded activity is.
+      </p>
+
+      <a href="https://github.com/remzarchain/remzar">
+        Blockchain source
+      </a>
+    </div>
+  </footer>
+
+  <div
+    id="copy-feedback"
+    class="visually-hidden"
+    role="status"
+    aria-live="polite"
+    aria-atomic="true"
+  ></div>
+</body>
+</html>
