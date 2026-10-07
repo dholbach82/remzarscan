@@ -2,7 +2,7 @@
 
 (() => {
   const CONFIG = Object.freeze({
-    apiBaseUrl: "http://127.0.0.1:8787/api/v1",
+    apiBaseUrl: "https://api.remzar.com/api/v1",
     pageSize: 20,
     decimals: 8,
     timeoutMs: 12000,
